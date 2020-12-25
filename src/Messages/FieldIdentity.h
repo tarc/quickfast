@@ -8,6 +8,7 @@
 #define FIELDIDENTITY_H
 #include "FieldIdentity_fwd.h"
 #include <Common/Types.h>
+#include <charconv>
 
 namespace QuickFAST{
   namespace Messages{
@@ -54,6 +55,7 @@ namespace QuickFAST{
         , fieldNamespace_(rhs.fieldNamespace_)
         , fullName_(rhs.fullName_)
         , id_(rhs.id_)
+        , intId_(rhs.intId_)
       {
       }
 
@@ -62,6 +64,9 @@ namespace QuickFAST{
       void setId(const field_id_t & id)
       {
         id_ = id;
+        decltype(intId_) intId;
+        std::from_chars(id.data(), id.data() + id.size(), intId);
+        intId_ = intId;
       }
 
       /// @brief get the fully qualified name of the field.
@@ -92,6 +97,11 @@ namespace QuickFAST{
         return id_;
       }
 
+      const auto GetIntID() const
+      {
+        return intId_;
+      }
+
       ///@brief Debug: Display the identity on the given output stream.
       /// @param output is where to write the human-readable representation of the identity.
       void display(std::ostream & output)const;
@@ -106,7 +116,7 @@ namespace QuickFAST{
         return(
           (fieldNamespace_ == rhs.fieldNamespace_) &&
           (fullName_ == rhs.fullName_) &&
-          (id_.empty() || rhs.id_.empty() || id_ == rhs.id_));
+          (intId_ == 0 || rhs.intId_ == 0 || intId_ == rhs.intId_));
       }
 
       /// @brief Compare identities
@@ -133,6 +143,7 @@ namespace QuickFAST{
       std::string fieldNamespace_;
       std::string fullName_; // cached for performance
       field_id_t id_;
+      int32 intId_;
     };
   }
 }
